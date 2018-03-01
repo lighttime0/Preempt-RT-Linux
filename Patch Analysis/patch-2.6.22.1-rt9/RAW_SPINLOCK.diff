@@ -1,0 +1,1229 @@
+# 这个文件记录了从patch中抽取出的RAW_SPINLOCK
+
+
+Index: linux/arch/arm/kernel/dma.c
+===================================================================
+--- linux.orig/arch/arm/kernel/dma.c
++++ linux/arch/arm/kernel/dma.c
+@@ -20,7 +20,7 @@
+ 
+ #include <asm/mach/dma.h>
+ 
+-DEFINE_SPINLOCK(dma_spin_lock);
++DEFINE_RAW_SPINLOCK(dma_spin_lock);
+ EXPORT_SYMBOL(dma_spin_lock);
+ 
+ static dma_t dma_chan[MAX_DMA_CHANNELS];
+
+
+ Index: linux/arch/arm/kernel/smp.c
+===================================================================
+--- linux.orig/arch/arm/kernel/smp.c
++++ linux/arch/arm/kernel/smp.c
+@@ -521,7 +521,7 @@ static void ipi_call_function(unsigned i
+ 		cpu_clear(cpu, data->unfinished);
+ }
+ 
+-static DEFINE_SPINLOCK(stop_lock);
++static DEFINE_RAW_SPINLOCK(stop_lock);
+ 
+ /*
+  * ipi_cpu_stop - handle IPI from smp_send_stop()
+
+
+Index: linux/arch/arm/kernel/traps.c
+===================================================================
+--- linux.orig/arch/arm/kernel/traps.c
++++ linux/arch/arm/kernel/traps.c
+@@ -233,7 +234,7 @@ static void __die(const char *str, int e
+ 	}
+ }
+ 
+-DEFINE_SPINLOCK(die_lock);
++DEFINE_RAW_SPINLOCK(die_lock);
+ 
+ /*
+  * This function is protected against re-entrancy.
+@@ -275,7 +276,7 @@ void arm_notify_die(const char *str, str
+ }
+ 
+ static LIST_HEAD(undef_hook);
+-static DEFINE_SPINLOCK(undef_lock);
++static DEFINE_RAW_SPINLOCK(undef_lock);
+ 
+ void register_undef_hook(struct undef_hook *hook)
+ {
+
+
+Index: linux/arch/arm/mach-footbridge/netwinder-hw.c
+===================================================================
+--- linux.orig/arch/arm/mach-footbridge/netwinder-hw.c
++++ linux/arch/arm/mach-footbridge/netwinder-hw.c
+@@ -67,7 +67,7 @@ static inline void wb977_ww(int reg, int
+ /*
+  * This is a lock for accessing ports GP1_IO_BASE and GP2_IO_BASE
+  */
+-DEFINE_SPINLOCK(gpio_lock);
++DEFINE_RAW_SPINLOCK(gpio_lock);
+ 
+ static unsigned int current_gpio_op;
+ static unsigned int current_gpio_io;
+
+
+Index: linux/arch/arm/mach-integrator/core.c
+===================================================================
+--- linux.orig/arch/arm/mach-integrator/core.c
++++ linux/arch/arm/mach-integrator/core.c
+@@ -164,7 +164,7 @@ static struct amba_pl010_data integrator
+ 
+ #define CM_CTRL	IO_ADDRESS(INTEGRATOR_HDR_BASE) + INTEGRATOR_HDR_CTRL_OFFSET
+ 
+-static DEFINE_SPINLOCK(cm_lock);
++static DEFINE_RAW_SPINLOCK(cm_lock);
+ 
+ /**
+  * cm_control - update the CM_CTRL register.
+
+
+Index: linux/arch/arm/mach-integrator/pci_v3.c
+===================================================================
+--- linux.orig/arch/arm/mach-integrator/pci_v3.c
++++ linux/arch/arm/mach-integrator/pci_v3.c
+@@ -162,7 +162,7 @@
+  *	 7:2	register number
+  *  
+  */
+-static DEFINE_SPINLOCK(v3_lock);
++static DEFINE_RAW_SPINLOCK(v3_lock);
+ 
+ #define PCI_BUS_NONMEM_START	0x00000000
+ #define PCI_BUS_NONMEM_SIZE	SZ_256M
+
+
+Index: linux/arch/arm/mach-ixp4xx/common-pci.c
+===================================================================
+--- linux.orig/arch/arm/mach-ixp4xx/common-pci.c
++++ linux/arch/arm/mach-ixp4xx/common-pci.c
+@@ -53,7 +53,7 @@ unsigned long ixp4xx_pci_reg_base = 0;
+  * these transactions are atomic or we will end up
+  * with corrupt data on the bus or in a driver.
+  */
+-static DEFINE_SPINLOCK(ixp4xx_pci_lock);
++static DEFINE_RAW_SPINLOCK(ixp4xx_pci_lock);
+ 
+ /*
+  * Read from PCI config space
+
+
+Index: linux/arch/arm/mach-shark/leds.c
+===================================================================
+--- linux.orig/arch/arm/mach-shark/leds.c
++++ linux/arch/arm/mach-shark/leds.c
+@@ -32,7 +32,7 @@ static char led_state;
+ static short hw_led_state;
+ static short saved_state;
+ 
+-static DEFINE_SPINLOCK(leds_lock);
++static DEFINE_RAW_SPINLOCK(leds_lock);
+ 
+ short sequoia_read(int addr) {
+   outw(addr,0x24);
+
+
+Index: linux/arch/arm/mm/consistent.c
+===================================================================
+--- linux.orig/arch/arm/mm/consistent.c
++++ linux/arch/arm/mm/consistent.c
+@@ -40,7 +40,7 @@
+  * These are the page tables (2MB each) covering uncached, DMA consistent allocations
+  */
+ static pte_t *consistent_pte[NUM_CONSISTENT_PTES];
+-static DEFINE_SPINLOCK(consistent_lock);
++static DEFINE_RAW_SPINLOCK(consistent_lock);
+ 
+ /*
+  * VM region handling support.
+
+
+Index: linux/arch/arm/mm/copypage-v4mc.c
+===================================================================
+--- linux.orig/arch/arm/mm/copypage-v4mc.c
++++ linux/arch/arm/mm/copypage-v4mc.c
+@@ -30,7 +30,7 @@
+ #define minicache_pgprot __pgprot(L_PTE_PRESENT | L_PTE_YOUNG | \
+ 				  L_PTE_CACHEABLE)
+ 
+-static DEFINE_SPINLOCK(minicache_lock);
++static DEFINE_RAW_SPINLOCK(minicache_lock);
+ 
+ /*
+  * ARMv4 mini-dcache optimised copy_user_page
+
+
+Index: linux/arch/arm/mm/copypage-v6.c
+===================================================================
+--- linux.orig/arch/arm/mm/copypage-v6.c
++++ linux/arch/arm/mm/copypage-v6.c
+@@ -26,7 +26,7 @@
+ #define from_address	(0xffff8000)
+ #define to_address	(0xffffc000)
+ 
+-static DEFINE_SPINLOCK(v6_lock);
++static DEFINE_RAW_SPINLOCK(v6_lock);
+ 
+ /*
+  * Copy the user page.  No aliasing to deal with so we can just
+
+
+Index: linux/arch/arm/mm/copypage-xscale.c
+===================================================================
+--- linux.orig/arch/arm/mm/copypage-xscale.c
++++ linux/arch/arm/mm/copypage-xscale.c
+@@ -32,7 +32,7 @@
+ #define minicache_pgprot __pgprot(L_PTE_PRESENT | L_PTE_YOUNG | \
+ 				  L_PTE_CACHEABLE)
+ 
+-static DEFINE_SPINLOCK(minicache_lock);
++static DEFINE_RAW_SPINLOCK(minicache_lock);
+ 
+ /*
+  * XScale mini-dcache optimised copy_user_page
+
+
+Index: linux/arch/i386/kernel/cpu/mtrr/generic.c
+===================================================================
+--- linux.orig/arch/i386/kernel/cpu/mtrr/generic.c
++++ linux/arch/i386/kernel/cpu/mtrr/generic.c
+@@ -330,7 +330,7 @@ static unsigned long set_mtrr_state(void
+ 
+ 
+ static unsigned long cr4 = 0;
+-static DEFINE_SPINLOCK(set_atomicity_lock);
++static DEFINE_RAW_SPINLOCK(set_atomicity_lock);
+ 
+ /*
+  * Since we are disabling the cache don't allow any interrupts - they
+
+
+Index: linux/arch/i386/kernel/i8253.c
+===================================================================
+--- linux.orig/arch/i386/kernel/i8253.c
++++ linux/arch/i386/kernel/i8253.c
+@@ -3,20 +3,18 @@
+  *
+  */
+ #include <linux/clockchips.h>
+-#include <linux/spinlock.h>
++#include <linux/init.h>
++#include <linux/interrupt.h>
+ #include <linux/jiffies.h>
+-#include <linux/sysdev.h>
+ #include <linux/module.h>
+-#include <linux/init.h>
++#include <linux/spinlock.h>
+ 
+ #include <asm/smp.h>
+ #include <asm/delay.h>
+ #include <asm/i8253.h>
+ #include <asm/io.h>
+ 
+-#include "io_ports.h"
+-
+-DEFINE_SPINLOCK(i8253_lock);
++DEFINE_RAW_SPINLOCK(i8253_lock);
+ EXPORT_SYMBOL(i8253_lock);
+ 
+ /*
+
+
+Index: linux/arch/i386/kernel/i8259.c
+===================================================================
+--- linux.orig/arch/i386/kernel/i8259.c
++++ linux/arch/i386/kernel/i8259.c
+@@ -34,7 +34,7 @@
+  */
+ 
+ static int i8259A_auto_eoi;
+-DEFINE_SPINLOCK(i8259A_lock);
++DEFINE_RAW_SPINLOCK(i8259A_lock);
+ static void mask_and_ack_8259A(unsigned int);
+ 
+ static struct irq_chip i8259A_chip = {
+
+
+Index: linux/arch/i386/kernel/io_apic.c
+===================================================================
+--- linux.orig/arch/i386/kernel/io_apic.c
++++ linux/arch/i386/kernel/io_apic.c
+@@ -56,8 +56,8 @@ atomic_t irq_mis_count;
+ /* Where if anywhere is the i8259 connect in external int mode */
+ static struct { int pin, apic; } ioapic_i8259 = { -1, -1 };
+ 
+-static DEFINE_SPINLOCK(ioapic_lock);
+-static DEFINE_SPINLOCK(vector_lock);
++static DEFINE_RAW_SPINLOCK(ioapic_lock);
++static DEFINE_RAW_SPINLOCK(vector_lock);
+ 
+ int timer_over_8254 __initdata = 1;
+ 
+
+
+Index: linux/arch/i386/kernel/microcode.c
+===================================================================
+--- linux.orig/arch/i386/kernel/microcode.c
++++ linux/arch/i386/kernel/microcode.c
+@@ -116,7 +116,7 @@ MODULE_LICENSE("GPL");
+ #define exttable_size(et) ((et)->count * EXT_SIGNATURE_SIZE + EXT_HEADER_SIZE)
+ 
+ /* serialize access to the physical write to MSR 0x79 */
+-static DEFINE_SPINLOCK(microcode_update_lock);
++static DEFINE_RAW_SPINLOCK(microcode_update_lock);
+ 
+ /* no concurrent ->write()s are allowed on /dev/cpu/microcode */
+ static DEFINE_MUTEX(microcode_mutex);
+
+
+Index: linux/arch/i386/kernel/nmi.c
+===================================================================
+--- linux.orig/arch/i386/kernel/nmi.c
++++ linux/arch/i386/kernel/nmi.c
++static DEFINE_RAW_SPINLOCK(nmi_print_lock);
+
+
+Index: linux/arch/i386/kernel/smp.c
+===================================================================
+--- linux.orig/arch/i386/kernel/smp.c
++++ linux/arch/i386/kernel/smp.c
+@@ -246,7 +246,7 @@ void send_IPI_mask_sequence(cpumask_t ma
+ static cpumask_t flush_cpumask;
+ static struct mm_struct * flush_mm;
+ static unsigned long flush_va;
+-static DEFINE_SPINLOCK(tlbstate_lock);
++static DEFINE_RAW_SPINLOCK(tlbstate_lock);
+ 
+ /*
+  * We cannot call mmdrop() because we are in interrupt context, 
+
+
+Index: linux/arch/i386/kernel/smp.c
+===================================================================
+--- linux.orig/arch/i386/kernel/smp.c
++++ linux/arch/i386/kernel/smp.c
+@@ -474,10 +474,20 @@ static void native_smp_send_reschedule(i
+ }
+ 
+ /*
++ * this function sends a 'reschedule' IPI to all other CPUs.
++ * This is used when RT tasks are starving and other CPUs
++ * might be able to run them:
++ */
++void smp_send_reschedule_allbutself(void)
++{
++	send_IPI_allbutself(RESCHEDULE_VECTOR);
++}
++
++/*
+  * Structure and data for smp_call_function(). This is designed to minimise
+  * static memory requirements. It also looks cleaner.
+  */
+-static DEFINE_SPINLOCK(call_lock);
++static DEFINE_RAW_SPINLOCK(call_lock);
+ 
+ struct call_data_struct {
+ 	void (*func) (void *info);
+
+
+Index: linux/arch/i386/mm/pgtable.c
+===================================================================
+--- linux.orig/arch/i386/mm/pgtable.c
++++ linux/arch/i386/mm/pgtable.c
+@@ -208,7 +208,7 @@ void pmd_ctor(void *pmd, struct kmem_cac
+  * vmalloc faults work because attached pagetables are never freed.
+  * -- wli
+  */
+-DEFINE_SPINLOCK(pgd_lock);
++DEFINE_RAW_SPINLOCK(pgd_lock);
+ struct page *pgd_list;
+ 
+ static inline void pgd_list_add(pgd_t *pgd)
+
+
+Index: linux/arch/i386/pci/common.c
+===================================================================
+--- linux.orig/arch/i386/pci/common.c
++++ linux/arch/i386/pci/common.c
+@@ -52,7 +52,7 @@ int pcibios_scanned;
+  * This interrupt-safe spinlock protects all accesses to PCI
+  * configuration space.
+  */
+-DEFINE_SPINLOCK(pci_config_lock);
++DEFINE_RAW_SPINLOCK(pci_config_lock);
+ 
+ /*
+  * Several buggy motherboards address only 16 devices and mirror
+
+
+Index: linux/arch/ia64/kernel/iosapic.c
+===================================================================
+--- linux.orig/arch/ia64/kernel/iosapic.c
++++ linux/arch/ia64/kernel/iosapic.c
+@@ -111,7 +111,7 @@
+ 	(PAGE_SIZE / sizeof(struct iosapic_rte_info))
+ #define RTE_PREALLOCATED	(1)
+ 
+-static DEFINE_SPINLOCK(iosapic_lock);
++static DEFINE_RAW_SPINLOCK(iosapic_lock);
+ 
+ /*
+  * These tables map IA-64 vectors to the IOSAPIC pin that generates this
+
+
+Index: linux/arch/ia64/kernel/sal.c
+===================================================================
+--- linux.orig/arch/ia64/kernel/sal.c
++++ linux/arch/ia64/kernel/sal.c
+@@ -18,7 +18,7 @@
+ #include <asm/sal.h>
+ #include <asm/pal.h>
+ 
+- __cacheline_aligned DEFINE_SPINLOCK(sal_lock);
++ __cacheline_aligned DEFINE_RAW_SPINLOCK(sal_lock);
+ unsigned long sal_platform_features;
+ 
+ unsigned short sal_revision;
+
+
+Index: linux/arch/ia64/kernel/salinfo.c
+===================================================================
+--- linux.orig/arch/ia64/kernel/salinfo.c
++++ linux/arch/ia64/kernel/salinfo.c
+@@ -156,8 +156,8 @@ struct salinfo_data {
+ 
+ static struct salinfo_data salinfo_data[ARRAY_SIZE(salinfo_log_name)];
+ 
+-static DEFINE_SPINLOCK(data_lock);
+-static DEFINE_SPINLOCK(data_saved_lock);
++static DEFINE_RAW_SPINLOCK(data_lock);
++static DEFINE_RAW_SPINLOCK(data_saved_lock);
+ 
+ /** salinfo_platform_oemdata - optional callback to decode oemdata from an error
+  * record.
+
+
+Index: linux/arch/mips/kernel/i8259.c
+===================================================================
+--- linux.orig/arch/mips/kernel/i8259.c
++++ linux/arch/mips/kernel/i8259.c
+@@ -29,9 +29,9 @@
+  */
+ 
+ static int i8259A_auto_eoi = -1;
+-DEFINE_SPINLOCK(i8259A_lock);
+ /* some platforms call this... */
+ void mask_and_ack_8259A(unsigned int);
++DEFINE_RAW_SPINLOCK(i8259A_lock);
+ 
+ static struct irq_chip i8259A_chip = {
+ 	.name		= "XT-PIC",
+
+
+Index: linux/arch/mips/kernel/module.c
+===================================================================
+--- linux.orig/arch/mips/kernel/module.c
++++ linux/arch/mips/kernel/module.c
+@@ -40,7 +40,7 @@ struct mips_hi16 {
+ static struct mips_hi16 *mips_hi16_list;
+ 
+ static LIST_HEAD(dbe_list);
+-static DEFINE_SPINLOCK(dbe_lock);
++static DEFINE_RAW_SPINLOCK(dbe_lock);
+ 
+ void *module_alloc(unsigned long size)
+ {
+
+
+Index: linux/arch/mips/kernel/semaphore.c
+===================================================================
+--- linux.orig/arch/mips/kernel/semaphore.c
++++ linux/arch/mips/kernel/semaphore.c
+@@ -67,7 +67,7 @@ static inline int __sem_update_count(str
+ 		: "=&r" (old_count), "=&r" (tmp), "=m" (sem->count)
+ 		: "r" (incr), "m" (sem->count));
+ 	} else {
+-		static DEFINE_SPINLOCK(semaphore_lock);
++		static DEFINE_RAW_SPINLOCK(semaphore_lock);
+ 		unsigned long flags;
+ 
+ 		spin_lock_irqsave(&semaphore_lock, flags);
+
+
+Index: linux/arch/mips/kernel/smp.c
+===================================================================
+--- linux.orig/arch/mips/kernel/smp.c
++++ linux/arch/mips/kernel/smp.c
+@@ -98,7 +88,22 @@ asmlinkage __cpuinit void start_secondar
+ 	cpu_idle();
+ }
+ 
+-DEFINE_SPINLOCK(smp_call_lock);
++DEFINE_RAW_SPINLOCK(smp_call_lock);
++
++/*
++ * this function sends a 'reschedule' IPI to all other CPUs.
++ * This is used when RT tasks are starving and other CPUs
++ * might be able to run them.
++ */
++void smp_send_reschedule_allbutself(void)
++{
++	int cpu = smp_processor_id();
++	int i;
++
++	for (i = 0; i < NR_CPUS; i++)
++		if (cpu_online(i) && i != cpu)
++			core_send_ipi(i, SMP_RESCHEDULE_YOURSELF);
++}
+ 
+ struct call_data_struct *call_data;
+ 
+@@ -286,6 +290,8 @@ int setup_profiling_timer(unsigned int m
+ 	return 0;
+ }
+ 
++static DEFINE_RAW_SPINLOCK(tlbstate_lock);
++
+ static void flush_tlb_all_ipi(void *info)
+ {
+ 	local_flush_tlb_all();
+
+
+Index: linux/arch/mips/kernel/time.c
+===================================================================
+--- linux.orig/arch/mips/kernel/time.c
++++ linux/arch/mips/kernel/time.c
+@@ -47,7 +53,27 @@
+ /*
+  * forward reference
+  */
+-DEFINE_SPINLOCK(rtc_lock);
++DEFINE_RAW_SPINLOCK(rtc_lock);
++
++/* any missed timer interrupts */
++int missed_timer_count;
++
++#ifdef CONFIG_HIGH_RES_TIMERS
++static void mips_set_next_event(unsigned long evt);
++static void mips_set_mode(int mode, void *priv);
++
++static struct clock_event lapic_clockevent = {
++	.name = "mips clockevent interface",
++	.capabilities = CLOCK_CAP_NEXTEVT | CLOCK_CAP_PROFILE |
++			CLOCK_HAS_IRQHANDLER
++#ifdef CONFIG_SMP
++			| CLOCK_CAP_UPDATE
++#endif
++	,
++	.shift = 32,
++	.set_next_event = mips_set_next_event,
++};
++#endif
+ 
+ /*
+  * By default we provide the null RTC ops
+
+
+Index: linux/arch/mips/kernel/traps.c
+===================================================================
+--- linux.orig/arch/mips/kernel/traps.c
++++ linux/arch/mips/kernel/traps.c
+@@ -309,7 +309,7 @@ void show_registers(struct pt_regs *regs
+ 	printk("\n");
+ }
+ 
+-static DEFINE_SPINLOCK(die_lock);
++static DEFINE_RAW_SPINLOCK(die_lock);
+ 
+ NORET_TYPE void ATTRIB_NORET die(const char * str, struct pt_regs * regs)
+ {
+
+
+Index: linux/arch/mips/sibyte/sb1250/irq.c
+===================================================================
+--- linux.orig/arch/mips/sibyte/sb1250/irq.c
++++ linux/arch/mips/sibyte/sb1250/irq.c
+@@ -81,7 +81,7 @@ static struct irq_chip sb1250_irq_type =
+ /* Store the CPU id (not the logical number) */
+ int sb1250_irq_owner[SB1250_NR_IRQS];
+ 
+-DEFINE_SPINLOCK(sb1250_imr_lock);
++DEFINE_RAW_SPINLOCK(sb1250_imr_lock);
+ 
+ void sb1250_mask_irq(int cpu, int irq)
+ {
+
+
+Index: linux/arch/powerpc/kernel/irq.c
+===================================================================
+--- linux.orig/arch/powerpc/kernel/irq.c
++++ linux/arch/powerpc/kernel/irq.c
+@@ -405,7 +403,7 @@ EXPORT_SYMBOL(do_softirq);
+ #ifdef CONFIG_PPC_MERGE
+ 
+ static LIST_HEAD(irq_hosts);
+-static DEFINE_SPINLOCK(irq_big_lock);
++static DEFINE_RAW_SPINLOCK(irq_big_lock);
+ static DEFINE_PER_CPU(unsigned int, irq_radix_reader);
+ static unsigned int irq_radix_writer;
+ struct irq_map_entry irq_map[NR_IRQS];
+
+
+Index: linux/arch/powerpc/kernel/pmc.c
+===================================================================
+--- linux.orig/arch/powerpc/kernel/pmc.c
++++ linux/arch/powerpc/kernel/pmc.c
+@@ -37,7 +37,7 @@ static void dummy_perf(struct pt_regs *r
+ }
+ 
+ 
+-static DEFINE_SPINLOCK(pmc_owner_lock);
++static DEFINE_RAW_SPINLOCK(pmc_owner_lock);
+ static void *pmc_owner_caller; /* mostly for debugging */
+ perf_irq_t perf_irq = dummy_perf;
+ 
+
+
+Index: linux/arch/powerpc/kernel/smp.c
+===================================================================
+--- linux.orig/arch/powerpc/kernel/smp.c
++++ linux/arch/powerpc/kernel/smp.c
+@@ -162,7 +172,7 @@ void smp_send_stop(void)
+  * static memory requirements. It also looks cleaner.
+  * Stolen from the i386 version.
+  */
+-static  __cacheline_aligned_in_smp DEFINE_SPINLOCK(call_lock);
++static  __cacheline_aligned_in_smp DEFINE_RAW_SPINLOCK(call_lock);
+ 
+ static struct call_data_struct {
+ 	void (*func) (void *info);
+
+
+Index: linux/arch/powerpc/mm/hash_native_64.c
+===================================================================
+--- linux.orig/arch/powerpc/mm/hash_native_64.c
++++ linux/arch/powerpc/mm/hash_native_64.c
+@@ -36,7 +36,7 @@
+ 
+ #define HPTE_LOCK_BIT 3
+ 
+-static DEFINE_SPINLOCK(native_tlbie_lock);
++static DEFINE_RAW_SPINLOCK(native_tlbie_lock);
+ 
+ static inline void __tlbie(unsigned long va, unsigned int psize)
+ {
+
+
+Index: linux/arch/powerpc/platforms/cell/smp.c
+===================================================================
+--- linux.orig/arch/powerpc/platforms/cell/smp.c
++++ linux/arch/powerpc/platforms/cell/smp.c
+@@ -133,7 +133,7 @@ static void __devinit smp_iic_setup_cpu(
+ 		iic_setup_cpu();
+ }
+ 
+-static DEFINE_SPINLOCK(timebase_lock);
++static DEFINE_RAW_SPINLOCK(timebase_lock);
+ static unsigned long timebase = 0;
+ 
+ static void __devinit cell_give_timebase(void)
+
+
+Index: linux/arch/powerpc/platforms/celleb/htab.c
+===================================================================
+--- linux.orig/arch/powerpc/platforms/celleb/htab.c
++++ linux/arch/powerpc/platforms/celleb/htab.c
+@@ -40,7 +40,7 @@
+ #define DBG_LOW(fmt...) do { } while(0)
+ #endif
+ 
+-static DEFINE_SPINLOCK(beat_htab_lock);
++static DEFINE_RAW_SPINLOCK(beat_htab_lock);
+ 
+ static inline unsigned int beat_read_mask(unsigned hpte_group)
+ {
+
+
+Index: linux/arch/powerpc/platforms/celleb/interrupt.c
+===================================================================
+--- linux.orig/arch/powerpc/platforms/celleb/interrupt.c
++++ linux/arch/powerpc/platforms/celleb/interrupt.c
+@@ -29,8 +29,12 @@
+ #include "interrupt.h"
+ #include "beat_wrapper.h"
+ 
++#ifdef CONFIG_PREEMPT_HARDIRQS
++extern int hardirq_preemption;
++#endif /* CONFIG_PREEMPT_HARDIRQS */
++
+ #define	MAX_IRQS	NR_IRQS
+-static DEFINE_SPINLOCK(beatic_irq_mask_lock);
++static DEFINE_RAW_SPINLOCK(beatic_irq_mask_lock);
+ static uint64_t	beatic_irq_mask_enable[(MAX_IRQS+255)/64];
+ static uint64_t	beatic_irq_mask_ack[(MAX_IRQS+255)/64];
+ 
+
+
+Index: linux/arch/powerpc/platforms/chrp/smp.c
+===================================================================
+--- linux.orig/arch/powerpc/platforms/chrp/smp.c
++++ linux/arch/powerpc/platforms/chrp/smp.c
+@@ -44,7 +44,7 @@ static void __devinit smp_chrp_setup_cpu
+ 	mpic_setup_this_cpu();
+ }
+ 
+-static DEFINE_SPINLOCK(timebase_lock);
++static DEFINE_RAW_SPINLOCK(timebase_lock);
+ static unsigned int timebase_upper = 0, timebase_lower = 0;
+ 
+ void __devinit smp_chrp_give_timebase(void)
+
+
+Index: linux/arch/powerpc/platforms/powermac/feature.c
+===================================================================
+--- linux.orig/arch/powerpc/platforms/powermac/feature.c
++++ linux/arch/powerpc/platforms/powermac/feature.c
+@@ -59,7 +59,7 @@ extern struct device_node *k2_skiplist[2
+  * We use a single global lock to protect accesses. Each driver has
+  * to take care of its own locking
+  */
+-DEFINE_SPINLOCK(feature_lock);
++DEFINE_RAW_SPINLOCK(feature_lock);
+ 
+ #define LOCK(flags)	spin_lock_irqsave(&feature_lock, flags);
+ #define UNLOCK(flags)	spin_unlock_irqrestore(&feature_lock, flags);
+
+
+Index: linux/arch/powerpc/platforms/powermac/nvram.c
+===================================================================
+--- linux.orig/arch/powerpc/platforms/powermac/nvram.c
++++ linux/arch/powerpc/platforms/powermac/nvram.c
+@@ -80,7 +80,7 @@ static int is_core_99;
+ static int core99_bank = 0;
+ static int nvram_partitions[3];
+ // XXX Turn that into a sem
+-static DEFINE_SPINLOCK(nv_lock);
++static DEFINE_RAW_SPINLOCK(nv_lock);
+ 
+ static int (*core99_write_bank)(int bank, u8* datas);
+ static int (*core99_erase_bank)(int bank);
+
+
+Index: linux/arch/powerpc/platforms/powermac/pic.c
+===================================================================
+--- linux.orig/arch/powerpc/platforms/powermac/pic.c
++++ linux/arch/powerpc/platforms/powermac/pic.c
+@@ -63,7 +63,7 @@ static int max_irqs;
+ static int max_real_irqs;
+ static u32 level_mask[4];
+ 
+-static DEFINE_SPINLOCK(pmac_pic_lock);
++static DEFINE_RAW_SPINLOCK(pmac_pic_lock);
+ 
+ #define NR_MASK_WORDS	((NR_IRQS + 31) / 32)
+ static unsigned long ppc_lost_interrupts[NR_MASK_WORDS];
+
+
+Index: linux/arch/powerpc/platforms/pseries/smp.c
+===================================================================
+--- linux.orig/arch/powerpc/platforms/pseries/smp.c
++++ linux/arch/powerpc/platforms/pseries/smp.c
+@@ -154,7 +154,7 @@ static void __devinit smp_xics_setup_cpu
+ }
+ #endif /* CONFIG_XICS */
+ 
+-static DEFINE_SPINLOCK(timebase_lock);
++static DEFINE_RAW_SPINLOCK(timebase_lock);
+ static unsigned long timebase = 0;
+ 
+ static void __devinit pSeries_give_timebase(void)
+
+
+Index: linux/arch/powerpc/sysdev/i8259.c
+===================================================================
+--- linux.orig/arch/powerpc/sysdev/i8259.c
++++ linux/arch/powerpc/sysdev/i8259.c
+@@ -23,7 +23,7 @@ static unsigned char cached_8259[2] = { 
+ #define cached_A1 (cached_8259[0])
+ #define cached_21 (cached_8259[1])
+ 
+-static DEFINE_SPINLOCK(i8259_lock);
++static DEFINE_RAW_SPINLOCK(i8259_lock);
+ 
+ static struct device_node *i8259_node;
+ static struct irq_host *i8259_host;
+
+
+Index: linux/arch/powerpc/sysdev/ipic.c
+===================================================================
+--- linux.orig/arch/powerpc/sysdev/ipic.c
++++ linux/arch/powerpc/sysdev/ipic.c
+@@ -30,7 +30,7 @@
+ #include "ipic.h"
+ 
+ static struct ipic * primary_ipic;
+-static DEFINE_SPINLOCK(ipic_lock);
++static DEFINE_RAW_SPINLOCK(ipic_lock);
+ 
+ static struct ipic_info ipic_info[] = {
+ 	[9] = {
+
+
+Index: linux/arch/powerpc/sysdev/mpic.c
+===================================================================
+--- linux.orig/arch/powerpc/sysdev/mpic.c
++++ linux/arch/powerpc/sysdev/mpic.c
+@@ -46,7 +46,7 @@
+ 
+ static struct mpic *mpics;
+ static struct mpic *mpic_primary;
+-static DEFINE_SPINLOCK(mpic_lock);
++static DEFINE_RAW_SPINLOCK(mpic_lock);
+ 
+ #ifdef CONFIG_PPC32	/* XXX for now */
+ #ifdef CONFIG_IRQ_ALL_CPUS
+
+
+Index: linux/arch/ppc/kernel/smp.c
+===================================================================
+--- linux.orig/arch/ppc/kernel/smp.c
++++ linux/arch/ppc/kernel/smp.c
+@@ -160,7 +170,7 @@ void smp_send_stop(void)
+  * static memory requirements. It also looks cleaner.
+  * Stolen from the i386 version.
+  */
+-static DEFINE_SPINLOCK(call_lock);
++static DEFINE_RAW_SPINLOCK(call_lock);
+ 
+ static struct call_data_struct {
+ 	void (*func) (void *info);
+
+
+Index: linux/arch/ppc/kernel/traps.c
+===================================================================
+--- linux.orig/arch/ppc/kernel/traps.c
++++ linux/arch/ppc/kernel/traps.c
+@@ -72,7 +72,7 @@ void (*debugger_fault_handler)(struct pt
+  * Trap & Exception support
+  */
+ 
+-DEFINE_SPINLOCK(die_lock);
++DEFINE_RAW_SPINLOCK(die_lock);
+ 
+ int die(const char * str, struct pt_regs * fp, long err)
+ {
+
+
+Index: linux/arch/ppc/platforms/hdpu.c
+===================================================================
+--- linux.orig/arch/ppc/platforms/hdpu.c
++++ linux/arch/ppc/platforms/hdpu.c
+@@ -55,7 +55,7 @@ static void parse_bootinfo(unsigned long
+ static void hdpu_set_l1pe(void);
+ static void hdpu_cpustate_set(unsigned char new_state);
+ #ifdef CONFIG_SMP
+-static DEFINE_SPINLOCK(timebase_lock);
++static DEFINE_RAW_SPINLOCK(timebase_lock);
+ static unsigned int timebase_upper = 0, timebase_lower = 0;
+ extern int smp_tb_synchronized;
+ 
+
+
+Index: linux/arch/ppc/platforms/sbc82xx.c
+===================================================================
+--- linux.orig/arch/ppc/platforms/sbc82xx.c
++++ linux/arch/ppc/platforms/sbc82xx.c
+@@ -65,7 +65,7 @@ static void sbc82xx_time_init(void)
+ 
+ static volatile char *sbc82xx_i8259_map;
+ static char sbc82xx_i8259_mask = 0xff;
+-static DEFINE_SPINLOCK(sbc82xx_i8259_lock);
++static DEFINE_RAW_SPINLOCK(sbc82xx_i8259_lock);
+ 
+ static void sbc82xx_i8259_mask_and_ack_irq(unsigned int irq_nr)
+ {
+
+
+Index: linux/arch/ppc/syslib/open_pic.c
+===================================================================
+--- linux.orig/arch/ppc/syslib/open_pic.c
++++ linux/arch/ppc/syslib/open_pic.c
+@@ -526,7 +526,7 @@ void openpic_reset_processor_phys(u_int 
+ }
+ 
+ #if defined(CONFIG_SMP) || defined(CONFIG_PM)
+-static DEFINE_SPINLOCK(openpic_setup_lock);
++static DEFINE_RAW_SPINLOCK(openpic_setup_lock);
+ #endif
+ 
+ #ifdef CONFIG_SMP
+
+
+Index: linux/arch/ppc/syslib/open_pic2.c
+===================================================================
+--- linux.orig/arch/ppc/syslib/open_pic2.c
++++ linux/arch/ppc/syslib/open_pic2.c
+@@ -380,7 +380,7 @@ static void openpic2_set_spurious(u_int 
+ 			   vec);
+ }
+ 
+-static DEFINE_SPINLOCK(openpic2_setup_lock);
++static DEFINE_RAW_SPINLOCK(openpic2_setup_lock);
+ 
+ /*
+  *  Initialize a timer interrupt (and disable it)
+
+
+Index: linux/arch/sh/kernel/cpu/clock.c
+===================================================================
+--- linux.orig/arch/sh/kernel/cpu/clock.c
++++ linux/arch/sh/kernel/cpu/clock.c
+@@ -28,7 +28,7 @@
+ #include <asm/timer.h>
+ 
+ static LIST_HEAD(clock_list);
+-static DEFINE_SPINLOCK(clock_lock);
++static DEFINE_RAW_SPINLOCK(clock_lock);
+ static DEFINE_MUTEX(clock_list_sem);
+ 
+ /*
+
+
+Index: linux/arch/sh/kernel/cpu/sh4/sq.c
+===================================================================
+--- linux.orig/arch/sh/kernel/cpu/sh4/sq.c
++++ linux/arch/sh/kernel/cpu/sh4/sq.c
+@@ -37,7 +37,7 @@ struct sq_mapping {
+ };
+ 
+ static struct sq_mapping *sq_mapping_list;
+-static DEFINE_SPINLOCK(sq_mapping_lock);
++static DEFINE_RAW_SPINLOCK(sq_mapping_lock);
+ static struct kmem_cache *sq_cache;
+ static unsigned long *sq_bitmap;
+ 
+
+
+Index: linux/arch/sh/kernel/time.c
+===================================================================
+--- linux.orig/arch/sh/kernel/time.c
++++ linux/arch/sh/kernel/time.c
+@@ -24,7 +24,7 @@
+ struct sys_timer *sys_timer;
+ 
+ /* Move this somewhere more sensible.. */
+-DEFINE_SPINLOCK(rtc_lock);
++DEFINE_RAW_SPINLOCK(rtc_lock);
+ EXPORT_SYMBOL(rtc_lock);
+ 
+ /* Dummy RTC ops */
+
+
+Index: linux/arch/sh/kernel/traps.c
+===================================================================
+--- linux.orig/arch/sh/kernel/traps.c
++++ linux/arch/sh/kernel/traps.c
+@@ -77,7 +77,7 @@ static void dump_mem(const char *str, un
+ 	}
+ }
+ 
+-static DEFINE_SPINLOCK(die_lock);
++static DEFINE_RAW_SPINLOCK(die_lock);
+ 
+ void die(const char * str, struct pt_regs * regs, long err)
+ {
+
+
+Index: linux/arch/x86_64/kernel/i8259.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/i8259.c
++++ linux/arch/x86_64/kernel/i8259.c
+@@ -96,8 +96,8 @@ static void (*interrupt[NR_VECTORS - FIR
+  */
+ 
+ static int i8259A_auto_eoi;
+-DEFINE_SPINLOCK(i8259A_lock);
+ static void mask_and_ack_8259A(unsigned int);
++DEFINE_RAW_SPINLOCK(i8259A_lock);
+ 
+ static struct irq_chip i8259A_chip = {
+ 	.name		= "XT-PIC",
+
+
+Index: linux/arch/x86_64/kernel/io_apic.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/io_apic.c
++++ linux/arch/x86_64/kernel/io_apic.c
+@@ -90,8 +90,8 @@ int timer_over_8254 __initdata = 1;
+ /* Where if anywhere is the i8259 connect in external int mode */
+ static struct { int pin, apic; } ioapic_i8259 = { -1, -1 };
+ 
+-static DEFINE_SPINLOCK(ioapic_lock);
+-DEFINE_SPINLOCK(vector_lock);
++static DEFINE_RAW_SPINLOCK(ioapic_lock);
++DEFINE_RAW_SPINLOCK(vector_lock);
+ 
+ /*
+  * # of IRQ routing registers
+
+
+Index: linux/arch/x86_64/kernel/nmi.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/nmi.c
++++ linux/arch/x86_64/kernel/nmi.c
++static DEFINE_RAW_SPINLOCK(nmi_print_lock);
+
+
+Index: linux/arch/x86_64/kernel/smp.c
+===================================================================
+--- linux.orig/arch/x86_64/kernel/smp.c
++++ linux/arch/x86_64/kernel/smp.c
+@@ -295,10 +295,20 @@ void smp_send_reschedule(int cpu)
+ }
+ 
+ /*
++ * this function sends a 'reschedule' IPI to all other CPUs.
++ * This is used when RT tasks are starving and other CPUs
++ * might be able to run them:
++ */
++void smp_send_reschedule_allbutself(void)
++{
++	send_IPI_allbutself(RESCHEDULE_VECTOR);
++}
++
++/*
+  * Structure and data for smp_call_function(). This is designed to minimise
+  * static memory requirements. It also looks cleaner.
+  */
+-static DEFINE_SPINLOCK(call_lock);
++static DEFINE_RAW_SPINLOCK(call_lock);
+ 
+ struct call_data_struct {
+ 	void (*func) (void *info);
+
+
+Index: linux/drivers/acpi/processor_idle.c
+===================================================================
+--- linux.orig/drivers/acpi/processor_idle.c
++++ linux/drivers/acpi/processor_idle.c
++static DEFINE_RAW_SPINLOCK(c3_lock);
+
+
+Index: linux/drivers/oprofile/oprofilefs.c
+===================================================================
+--- linux.orig/drivers/oprofile/oprofilefs.c
++++ linux/drivers/oprofile/oprofilefs.c
+@@ -21,7 +21,7 @@
+ 
+ #define OPROFILEFS_MAGIC 0x6f70726f
+ 
+-DEFINE_SPINLOCK(oprofilefs_lock);
++DEFINE_RAW_SPINLOCK(oprofilefs_lock);
+ 
+ static struct inode * oprofilefs_get_inode(struct super_block * sb, int mode)
+ {
+
+
+Index: linux/drivers/pci/access.c
+===================================================================
+--- linux.orig/drivers/pci/access.c
++++ linux/drivers/pci/access.c
+@@ -11,7 +11,7 @@
+  * configuration space.
+  */
+ 
+-static DEFINE_SPINLOCK(pci_lock);
++static DEFINE_RAW_SPINLOCK(pci_lock);
+ 
+ /*
+  *  Wrappers for all PCI configuration access functions.  They just check
+
+
+Index: linux/drivers/video/console/vgacon.c
+===================================================================
+--- linux.orig/drivers/video/console/vgacon.c
++++ linux/drivers/video/console/vgacon.c
+@@ -51,7 +51,7 @@
+ #include <video/vga.h>
+ #include <asm/io.h>
+ 
+-static DEFINE_SPINLOCK(vga_lock);
++static DEFINE_RAW_SPINLOCK(vga_lock);
+ static int cursor_size_lastfrom;
+ static int cursor_size_lastto;
+ static u32 vgacon_xres;
+
+
+Index: linux/kernel/kprobes.c
+===================================================================
+--- linux.orig/kernel/kprobes.c
++++ linux/kernel/kprobes.c
+@@ -70,7 +70,7 @@ static atomic_t kprobe_count;
+ static bool kprobe_enabled;
+ 
+ DEFINE_MUTEX(kprobe_mutex);		/* Protects kprobe_table */
+-DEFINE_SPINLOCK(kretprobe_lock);	/* Protects kretprobe_inst_table */
++DEFINE_RAW_SPINLOCK(kretprobe_lock);	/* Protects kretprobe_inst_table */
+ static DEFINE_PER_CPU(struct kprobe *, kprobe_instance) = NULL;
+ 
+ static struct notifier_block kprobe_page_fault_nb = {
+
+
+Index: linux/kernel/latency_trace.c
+===================================================================
+--- /dev/null
++++ linux/kernel/latency_trace.c
++static DEFINE_RAW_SPINLOCK(worst_stack_lock);
+
+
+Index: linux/kernel/module.c
+===================================================================
+--- linux.orig/kernel/module.c
++++ linux/kernel/module.c
+@@ -62,7 +62,7 @@ extern int module_sysfs_initialized;
+ #define INIT_OFFSET_MASK (1UL << (BITS_PER_LONG-1))
+ 
+ /* Protects module list */
+-static DEFINE_SPINLOCK(modlist_lock);
++static DEFINE_RAW_SPINLOCK(modlist_lock);
+ 
+ /* List of modules, protected by module_mutex AND modlist_lock */
+ static DEFINE_MUTEX(module_mutex);
+
+
+Index: linux/kernel/printk.c
+===================================================================
+--- linux.orig/kernel/printk.c
++++ linux/kernel/printk.c
+@@ -82,7 +82,7 @@ static int console_locked, console_suspe
+  * It is also used in interesting ways to provide interlocking in
+  * release_console_sem().
+  */
+-static DEFINE_SPINLOCK(logbuf_lock);
++static DEFINE_RAW_SPINLOCK(logbuf_lock);
+ 
+ #define LOG_BUF_MASK	(log_buf_len-1)
+ #define LOG_BUF(idx) (log_buf[(idx) & LOG_BUF_MASK])
+@@ -1077,7 +1119,7 @@ void tty_write_message(struct tty_struct
+  */
+ int __printk_ratelimit(int ratelimit_jiffies, int ratelimit_burst)
+ {
+-	static DEFINE_SPINLOCK(ratelimit_lock);
++	static DEFINE_RAW_SPINLOCK(ratelimit_lock);
+ 	static unsigned long toks = 10 * 5 * HZ;
+ 	static unsigned long last_msg;
+ 	static int missed;
+@@ -1118,6 +1160,23 @@ int printk_ratelimit(void)
+ }
+ EXPORT_SYMBOL(printk_ratelimit);
+ 
++static DEFINE_RAW_SPINLOCK(warn_lock);
+
+
+Index: linux/kernel/softlockup.c
+===================================================================
+--- linux.orig/kernel/softlockup.c
++++ linux/kernel/softlockup.c
+@@ -14,7 +14,9 @@
+ #include <linux/notifier.h>
+ #include <linux/module.h>
+ 
+-static DEFINE_SPINLOCK(print_lock);
++#include <asm/irq_regs.h>
++
++static DEFINE_RAW_SPINLOCK(print_lock);
+ 
+ static DEFINE_PER_CPU(unsigned long, touch_timestamp);
+ static DEFINE_PER_CPU(unsigned long, print_timestamp);
+
+
+Index: linux/kernel/time/clockevents.c
+===================================================================
+--- linux.orig/kernel/time/clockevents.c
++++ linux/kernel/time/clockevents.c
+@@ -27,7 +29,7 @@ static LIST_HEAD(clockevents_released);
+ static RAW_NOTIFIER_HEAD(clockevents_chain);
+ 
+ /* Protection for the above */
+-static DEFINE_SPINLOCK(clockevents_lock);
++static DEFINE_RAW_SPINLOCK(clockevents_lock);
+ 
+ /**
+  * clockevents_delta2ns - Convert a latch value (device ticks) to nanoseconds
+
+
+Index: linux/kernel/time/clocksource.c
+===================================================================
+--- linux.orig/kernel/time/clocksource.c
++++ linux/kernel/time/clocksource.c
+@@ -51,7 +51,7 @@ static struct clocksource *curr_clocksou
+ static struct clocksource *next_clocksource;
+ static struct clocksource *clocksource_override;
+ static LIST_HEAD(clocksource_list);
+-static DEFINE_SPINLOCK(clocksource_lock);
++static DEFINE_RAW_SPINLOCK(clocksource_lock);
+ static char override_name[32];
+ static int finished_booting;
+ 
+
+
+Index: linux/kernel/time/tick-broadcast.c
+===================================================================
+--- linux.orig/kernel/time/tick-broadcast.c
++++ linux/kernel/time/tick-broadcast.c
+@@ -29,7 +29,13 @@
+ 
+ struct tick_device tick_broadcast_device;
+ static cpumask_t tick_broadcast_mask;
+-static DEFINE_SPINLOCK(tick_broadcast_lock);
++static DEFINE_RAW_SPINLOCK(tick_broadcast_lock);
++
++#ifdef CONFIG_TICK_ONESHOT
++static void tick_broadcast_clear_oneshot(int cpu);
++#else
++static inline void tick_broadcast_clear_oneshot(int cpu) { }
++#endif
+ 
+ /*
+  * Debugging: see timer_list.c
+
+
+Index: linux/kernel/time/tick-common.c
+===================================================================
+--- linux.orig/kernel/time/tick-common.c
++++ linux/kernel/time/tick-common.c
+@@ -32,7 +32,7 @@ DEFINE_PER_CPU(struct tick_device, tick_
+ ktime_t tick_next_period;
+ ktime_t tick_period;
+ int tick_do_timer_cpu __read_mostly = -1;
+-DEFINE_SPINLOCK(tick_device_lock);
++DEFINE_RAW_SPINLOCK(tick_device_lock);
+ 
+ /*
+  * Debugging: see timer_list.c
+
+
+Index: linux/kernel/time/timer_stats.c
+===================================================================
+--- linux.orig/kernel/time/timer_stats.c
++++ linux/kernel/time/timer_stats.c
+@@ -80,12 +80,12 @@ struct entry {
+ /*
+  * Spinlock protecting the tables - not taken during lookup:
+  */
+-static DEFINE_SPINLOCK(table_lock);
++static DEFINE_RAW_SPINLOCK(table_lock);
+ 
+ /*
+  * Per-CPU lookup locks for fast hash lookup:
+  */
+
+
+
