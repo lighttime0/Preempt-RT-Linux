@@ -1,4 +1,6 @@
-# 3.1 HOWTO: RTOS and RT Applications
+# README 
+
+## 3.1 HOWTO: RTOS and RT Applications
 
 下面的HOWTOs包含了RTOS配置和RT application开发的简短介绍和例子。
 
