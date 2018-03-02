@@ -28,7 +28,7 @@ Doc的主页，也就是Doc的index页，是整个Doc的目录
 
 ##### 5. Known Limitations
 
-这个文档包含了Doc的第五个topic——Known Limitations，记录了一些已知的缺陷和解决方案。
+这个文档包含了Doc的第五个topic——[Known Limitations](https://wiki.linuxfoundation.org/realtime/documentation/known_limitations)，记录了一些已知的缺陷和解决方案。
 
 ##### 链接资料
 
