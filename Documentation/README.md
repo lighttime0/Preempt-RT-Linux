@@ -16,11 +16,11 @@ Doc的主页，也就是Doc的index页，是整个Doc的目录
 
 ##### 2. Technical details of PREEMPT_RT patch
 
-这个文件夹下包含了Doc的第一个topic——[Technical details of PREEMPT_RT patch](https://wiki.linuxfoundation.org/realtime/documentation/technical_details/start)的内容。
+这个文件夹下包含了Doc的第二个topic——[Technical details of PREEMPT_RT patch](https://wiki.linuxfoundation.org/realtime/documentation/technical_details/start)的内容。
 
 ##### 3. HOWTOs
 
-这个文件夹下包含了Doc的第一个topic——HOWTOs的内容。
+这个文件夹下包含了Doc的第三个topic——HOWTOs的内容。
 
 ##### 4. Publications
 
@@ -28,7 +28,7 @@ Doc的主页，也就是Doc的index页，是整个Doc的目录
 
 ##### 5. Known Limitations
 
-这个文档记录了一些已知的缺陷和解决方案。
+这个文档包含了Doc的第五个topic——Known Limitations，记录了一些已知的缺陷和解决方案。
 
 ##### 链接资料
 
