@@ -1,4 +1,4 @@
-# README 
+# README
 
 ## 3.1 HOWTO: RTOS and RT Applications
 
