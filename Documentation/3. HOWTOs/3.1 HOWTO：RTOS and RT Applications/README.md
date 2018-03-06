@@ -42,7 +42,11 @@
 
 <!-- * 3.1.2.4 [HOWTO build a simple RT application with a signaling mechanism](https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/signal) -->
 
-* 3.1.2.5 [HOWTO deal with application memory](https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/memory)
+* 3.1.2.5 HOWTO deal with application memory
+
+    详见：3.1.2.5 Memory for Real-time Applications
+
+<!-- * 3.1.2.5 [HOWTO deal with application memory](https://wiki.linuxfoundation.org/realtime/documentation/howto/applications/memory) -->
 
 
 
